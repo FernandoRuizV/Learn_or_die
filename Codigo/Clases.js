@@ -14,6 +14,7 @@ export class Personaje extends Phaser.Physics.Arcade.Sprite {
     this.ataque = 10;
     this.pociones = [];
     this.defensa = 0;
+    this.esta_atacando = false;
   }
 
   actualizarMovimiento(input, estaBloqueado) {
@@ -66,11 +67,11 @@ export class Personaje extends Phaser.Physics.Arcade.Sprite {
       return false;
     }
   }
-  atacar(Objetivo){
+  atacar(Objetivo) {
+    this.anims.play('personaje_ataca');
     Objetivo.recibirAtaque(this.ataque);
-    this.anims.play('heroe_ataca', true);
     console.log(`${this.nombre} ataca a ${Objetivo.nombre}`);
-  }
+}
   defenderse() {
     this.defensa+=10;
     console.log(`${this.nombre} ha aumentado su defensa en ${this.defensa}`);
@@ -113,15 +114,22 @@ export class Enemigo extends Phaser.Physics.Arcade.Sprite {
     recibirAtaque(danio) {
         this.vida -= danio;
         if (this.vida <= 0) {
-            console.log(`${this.nombre} ha sido derrotado.`);
-            this.destroy(); 
+          this.anims.play('zombie_muere');
+          console.log(`${this.nombre} ha sido derrotado.`);
+          this.once('animationcomplete', (animation) => {
+            if (animation.key === 'zombie_muere') {
+                this.scene.time.delayedCall(3000, () => {
+                  this.destroy();
+              }); 
+            }
+          });
         }
     }
 
     atacar(Objetivo) {
         if (Objetivo.recibirDanio) {
+            this.anims.play('zombie_ataca');
             Objetivo.recibirDanio(this.ataque);
-            this.anims.play('zombie_ataca', true);
             console.log(`${this.nombre} ataca a ${Objetivo.nombre}`);
         }
     }

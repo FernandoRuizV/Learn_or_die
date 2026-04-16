@@ -20,7 +20,22 @@ export class Nivel1 extends Escena_base {
     this.fondo.tileScaleX = 1.2; 
     this.fondo.tileScaleY = 1;
     super.create(); 
+    this.dialogue.border.setVisible(true);
+    this.dialogue.avatar.setVisible(true);
+
     this.physics.add.collider(this.player, this.zombie);
+    this.combateActivo = true;
+    
+    const { width, height } = this.sys.canvas;
+    const btnWidth = 230;
+    const btnHeight = 70;
+    const realWidth = btnWidth
+    const realHeight = btnHeight
+    const posX = width - realWidth - 180; 
+    const posY = height - realHeight - 40; 
+    this.dialogue.moverBoton(posX, posY, realWidth, realHeight);
+
+    
     this.zombie.setImmovable(true);
 
     this.time.delayedCall(10000, () => { 
@@ -31,7 +46,7 @@ export class Nivel1 extends Escena_base {
             "Se acercan nuevos peligros..."
           ], 
           () => { this.movimientoBloqueado = false; }
-        );
+        ,true);
     });
 
     this.time.delayedCall(20000, () => {
@@ -44,12 +59,12 @@ export class Nivel1 extends Escena_base {
             "Dale click para agregarla a tu inventario..."
           ], 
           () => { this.movimientoBloqueado = false; }
-        );
+        ,true);
       this.pocion.on('pointerdown', () => {
         this.player.agregarpocion('pocion1');
         this.pocion.destroy();
         this.expo.setVisible(true);
-        this.time.delayedCall(500, () => {
+        this.time.delayedCall(1000, () => {
           this.expo.setVisible(false);
         });
         this.movimientoBloqueado = true;
@@ -58,7 +73,7 @@ export class Nivel1 extends Escena_base {
             "Continua explorando, hay más secretos por descubrir...",
           ], 
           () => { this.movimientoBloqueado = false; }
-        );
+        ,true);
       });
     })
 
@@ -72,14 +87,17 @@ export class Nivel1 extends Escena_base {
             "Descuida, te enseñaré como hacerlo"
           ], 
           () => { this.movimientoBloqueado = false; }
-        );
-      this.questions.ask("¿Qué es reciclar?",["Convertir materiales usados en cosas nuevas","Tirar la basura al suelo"],0,
-        (resultado) => { 
-          this.procesarResultadoCombate(resultado, this.zombie);
-        });
-
+      ,true);
+      this.questions.ask('Nivel_1', (esCorrecto) => {
+      if (esCorrecto === null) return; 
+      this.procesarResultadoCombate(esCorrecto, this.zombie); 
+       this.estadisticas();
     });
+    });
+    
+
   }
+  
 
   update() {
     super.update();

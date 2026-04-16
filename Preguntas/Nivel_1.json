@@ -1,0 +1,62 @@
+[
+  {
+    "Pregunta": "¿Qué es reciclar?",
+    "Inciso A": "Convertir materiales usados en cosas nuevas",
+    "Inciso B": "Tirar la basura al suelo",
+    "Index correcto": 1
+  },
+  {
+    "Pregunta": "¿Dónde va el papel para reciclar?",
+    "Inciso A": "En el bote azul",
+    "Inciso B": "En el bote amarillo",
+    "Index correcto": 1
+  },
+  {
+    "Pregunta": "¿Las botellas de plástico se pueden reciclar?",
+    "Inciso A": "Sí",
+    "Inciso B": "No",
+    "Index correcto": 1
+  },
+  {
+    "Pregunta": "¿Reciclar ayuda al planeta?",
+    "Inciso A": "Sí",
+    "Inciso B": "No",
+    "Index correcto": 1
+  },
+  {
+    "Pregunta": "¿Qué debemos hacer antes de reciclar una botella de plástico?",
+    "Inciso A": "Enjuagarla un poco",
+    "Inciso B": "Dejarla con restos de comida",
+    "Index correcto": 1
+  },
+  {
+    "Pregunta": "¿Qué material tarda más en degradarse en la naturaleza?",
+    "Inciso A": "Plástico",
+    "Inciso B": "Papel",
+    "Index correcto": 1
+  },
+  {
+    "Pregunta": "¿Qué color suele usarse para reciclar vidrio?",
+    "Inciso A": "Verde",
+    "Inciso B": "Azul",
+    "Index correcto": 1
+  },
+  {
+    "Pregunta": "¿Qué pasa si no reciclamos?",
+    "Inciso A": "Aumenta la contaminación",
+    "Inciso B": "Se limpia el planeta solo",
+    "Index correcto": 1
+  },
+  {
+    "Pregunta": "¿Qué significa la regla de las 3R?",
+    "Inciso A": "Reducir, Reutilizar y Reciclar",
+    "Inciso B": "Recoger, Romper y Revolver",
+    "Index correcto": 1
+  },
+  {
+    "Pregunta": "¿Qué tipo de basura se convierte en composta?",
+    "Inciso A": "Restos de comida y cáscaras",
+    "Inciso B": "Botellas de vidrio",
+    "Index correcto": 1
+  }
+]

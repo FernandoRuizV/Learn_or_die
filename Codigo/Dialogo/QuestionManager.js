@@ -1,73 +1,130 @@
 export class QuestionManager {
   constructor(scene) {
     this.scene = scene;
+    this.preguntas = [];
+    this.indiceActual = 0;
   }
 
-  ask(questionText, options, correctIndex, onComplete) {
-    const container = this.scene.add.container(0, 0);
-    container.setScrollFactor(0);
-    container.setDepth(100);
+  cargarPreguntas(jsonKey) {
+    const data = this.scene.cache.json.get(jsonKey);
+    this.preguntas = data;
+    this.indiceActual = 0;
+  }
 
-    // --- DIMENSIONES NUEVAS (Cuadrado 200x200) ---
-    const anchoCaja = 300; // Aumentado un poco de 200 para que quepa el texto grande
-    const altoCaja = 350; 
-    const centroX = this.scene.scale.width / 2;
-    const centroY = this.scene.scale.height / 2;
+  ask(jsonKey, onComplete) {
+  if (this.preguntas.length === 0) {
+    this.cargarPreguntas(jsonKey);
+  }
 
-    // 1. Fondo Cuadrado Blanco
+  if (this.indiceActual >= this.preguntas.length) {
+    if (onComplete) onComplete(null);
+    return;
+  }
+
+  const preguntaData = this.preguntas[this.indiceActual];
+  this.indiceActual++;
+
+  const questionText = preguntaData["Pregunta"];
+  const options = [preguntaData["Inciso A"], preguntaData["Inciso B"]];
+  const correctIndex = preguntaData["Index correcto"] - 1;
+
+  this._mostrarPregunta(questionText, options, correctIndex, (isCorrect) => {
+    if (onComplete) onComplete(isCorrect); 
+    
+    if (this.scene.combateActivo) {
+      this.ask(jsonKey, onComplete);
+    }
+
+  });
+}
+
+  _mostrarPregunta(questionText, options, correctIndex, onComplete) {
+    const camWidth = this.scene.cameras.main.width;
+    const camHeight = this.scene.cameras.main.height;
+
+    const width = camWidth * 0.4;
+    const x = camWidth * 0.55;
+    const y = camHeight - 600;
+    const height = 350;
+
+    const elementos = [];
+
     const background = this.scene.add.graphics();
-    background.fillStyle(0xffffff, 1);
-    // Dibujamos centrado: x, y, ancho, alto
-    background.fillRoundedRect(centroX - (anchoCaja / 2), centroY - (altoCaja / 2), anchoCaja, altoCaja, 15);
-    background.lineStyle(4, 0x000000, 1);
-    background.strokeRoundedRect(centroX - (anchoCaja / 2), centroY - (altoCaja / 2), anchoCaja, altoCaja, 15);
-    container.add(background);
+    background.fillStyle(0x000000, 0.7);
+    background.fillRect(x, y, width, height);
+    background.lineStyle(6, 0xffffff, 1);
+    background.strokeRect(x, y, width, height);
+    background.setScrollFactor(0).setDepth(100);
+    elementos.push(background);
 
-    // 2. Texto de la Pregunta (Más Grande)
-    const txt = this.scene.add.text(centroX, centroY - 80, questionText, {
-      fontSize: '32px', // Texto más grande
-      color: '#000',
+    const txt = this.scene.add.text(x + width / 2, y + 60, questionText, {
+      fontSize: "28px",
+      fontFamily: "Arial, sans-serif",
+      fill: "#ffffff",
       align: 'center',
-      fontStyle: 'bold',
-      wordWrap: { width: anchoCaja - 40 }
-    }).setOrigin(0.5);
-    container.add(txt);
+      stroke: "#000000",
+      strokeThickness: 6,
+      wordWrap: { width: width - 40 }
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(101);
+    elementos.push(txt);
 
-    // 3. Botones Grandes (Verticales para abarcar la caja)
-    const buttons = options.slice(0, 2).map((opt, i) => {
-      // Posición vertical: uno debajo del otro
-      const btnGroup = this.scene.add.container(centroX, centroY + 40 + (i * 90));
-      
-      const btnAncho = anchoCaja - 40; // Casi todo el ancho de la caja
-      const btnAlto = 70; // Botones más altos
+    const btnAncho = width * 0.40;
+    const btnAlto = 180;
+    const gap = width * 0.04; 
+    const totalBtns = btnAncho * 2 + gap; 
+    const startX = x + (width - totalBtns) / 2; 
+
+    const btnY = y + 150; 
+
+    const btnPositions = [
+      startX,
+      startX + btnAncho + gap
+    ];
+    options.slice(0, 2).forEach((opt, i) => {
+      const btnX = btnPositions[i];
 
       const btnBg = this.scene.add.graphics();
-      btnBg.fillStyle(0x333333, 1);
-      btnBg.fillRoundedRect(-(btnAncho / 2), -(btnAlto / 2), btnAncho, btnAlto, 10);
-      
-      const btnTxt = this.scene.add.text(0, 0, opt, {
-        fontSize: '24px', // Letras de botones más grandes
-        color: '#fff',
-        wordWrap: { width: btnAncho - 20 },
+      btnBg.setScrollFactor(0).setDepth(102);
+      elementos.push(btnBg);
+
+      const drawBtn = (bgColor, strokeColor) => {
+        btnBg.clear();
+        btnBg.fillStyle(bgColor, 0.9);
+        btnBg.fillRoundedRect(btnX, btnY, btnAncho, btnAlto, 8);
+        btnBg.lineStyle(4, strokeColor, 1);
+        btnBg.strokeRoundedRect(btnX, btnY, btnAncho, btnAlto, 8);
+      };
+
+      drawBtn(0x000000, 0xffffff);
+
+      const btnTxt = this.scene.add.text(btnX + btnAncho / 2, btnY + btnAlto / 2, opt, {
+        fontSize: '20px',
+        fill: '#ffffff',
+        fontFamily: "Arial, sans-serif",
+        fontStyle: 'bold',
+        wordWrap: { width: btnAncho - 10 },
         align: 'center'
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setScrollFactor(0).setDepth(103);
+      elementos.push(btnTxt);
 
-      btnGroup.add([btnBg, btnTxt]);
-      btnGroup.setSize(btnAncho, btnAlto);
-      btnGroup.setInteractive(new Phaser.Geom.Rectangle(-(btnAncho / 2), -(btnAlto / 2), btnAncho, btnAlto), Phaser.Geom.Rectangle.Contains);
+      const zone = this.scene.add.zone(btnX + btnAncho / 2, btnY + btnAlto / 2, btnAncho, btnAlto);
+      zone.setScrollFactor(0).setDepth(104).setInteractive();
+      elementos.push(zone);
 
-      btnGroup.on('pointerdown', () => {
-        const isCorrect = (i === correctIndex);
-        container.destroy(); 
-        if (onComplete) onComplete(isCorrect);
+      zone.on('pointerover', () => {
+       drawBtn(0x4a2e00, 0xeeb710); 
+       btnTxt.setStyle({ fill: '#eeb710' });
       });
-
-      btnGroup.on('pointerover', () => btnBg.alpha = 0.8);
-      btnGroup.on('pointerout', () => btnBg.alpha = 1);
-
-      return btnGroup;
+      zone.on('pointerout', () => {
+       drawBtn(0x000000, 0xffffff); // negro, borde blanco
+       btnTxt.setStyle({ fill: '#ffffff' }); // letras blancas
+      });
+      zone.on('pointerdown', () => {
+       if (this.scene.movimientoBloqueado) return;
+       const isCorrect = (i === correctIndex);
+       elementos.forEach(el => el.destroy());
+       if (onComplete) onComplete(isCorrect);
+      });
     });
-
-    container.add(buttons);
   }
 }
