@@ -159,6 +159,7 @@ export class Escena_base extends Phaser.Scene {
         repeat: 0
       });
     }
+    this.boton_A_previo = false;
   }
 
 
@@ -362,8 +363,17 @@ mostrarDanio(sprite, escena) {
             this.player.stop();
             this.player.setTexture('personaje_inicio');
         } else {
+            // El InputManager ya tiene el joystick integrado aquí adentro
             this.player.actualizarMovimiento(this.inputManager, this.movimientoBloqueado);
+      }
+    }
+
+    // --- LÓGICA PARA AVANZAR DIÁLOGO ---
+    if (this.inputManager.botonA_FuePresionado()) {
+        if (this.movimientoBloqueado && this.dialogue) {
+            // Simulamos un clic en la pantalla para que el DialogueManager avance
+            this.input.events.emit('pointerdown');
         }
     }
-  }
+  }
 }

@@ -1,5 +1,5 @@
 export class InputManager {
-  constructor(scene) {
+ constructor(scene) {
     this.scene = scene;
     this.cursors = scene.input.keyboard.createCursorKeys();
     this.keys = scene.input.keyboard.addKeys("A,D");
@@ -7,11 +7,15 @@ export class InputManager {
     this.left = false;
     this.right = false;
 
-    this.esp32Data = { x: 2048 }; 
-    this.esp32IP = "http://172.26.166.15";
+    // Agregamos "y" y "btnA" a los datos
+    this.esp32Data = { x: 2048, y: 2048, btnA: 1 }; 
+    this.esp32IP = "http://192.168.100.232";
+    
+    // Variable para evitar que el diálogo se salte de golpe (Efecto metralleta)
+    this.botonAPrevio = 1; 
 
     this.iniciarLecturaFisica();
-  }
+}
 
   async iniciarLecturaFisica() {
     setInterval(async () => {
@@ -21,30 +25,46 @@ export class InputManager {
 
         const respuesta = await fetch(this.esp32IP, { signal: controlador.signal });
         const texto = await respuesta.text();
-        const valores = texto.split(",");
+   
+        // CORRECCIÓN: Separamos por salto de línea (\n) como lo tienes en tu control.ino
+        const lineas = texto.split("\n");
 
-        this.esp32Data.x = parseInt(valores[0]);
-        
-        clearTimeout(timeoutId);
-      } catch (error) {
-        // Si falla la conexión, ponemos el joystick en el centro
+        // Parseamos cada línea separando por los dos puntos ":"
+        this.esp32Data.x = parseInt(lineas[0].split(":")[1]);
+        this.esp32Data.y = parseInt(lineas[1].split(":")[1]);
+        this.esp32Data.btnA = parseInt(lineas[3].split(":")[1]);
+ 
+       clearTimeout(timeoutId);
+       } catch (error) {
+      // Si falla la conexión, ponemos valores neutros
         this.esp32Data.x = 2048;
+        this.esp32Data.y = 2048;
+        this.esp32Data.btnA = 1;
       }
-    }, 100); // Se ejecuta 10 veces por segundo
+    }, 100); 
   }
 
-  update() {
+ update() {
     // 1. Lógica de Teclado
     const tecladoIzquierda = this.cursors.left.isDown || this.keys.A.isDown;
     const tecladoDerecha = this.cursors.right.isDown || this.keys.D.isDown;
 
     // 2. Lógica de Joystick Físico
-    // El ESP32 da de 0 a 4095. El centro es ~2048.
     const joystickIzquierda = this.esp32Data.x < 1000;
     const joystickDerecha = this.esp32Data.x > 3000;
 
     // 3. Combinamos ambos: si cualquiera se activa, el personaje se mueve
     this.left = tecladoIzquierda || joystickIzquierda;
     this.right = tecladoDerecha || joystickDerecha;
+  }
+
+  // NUEVA FUNCIÓN: Solo dice "true" en el instante que lo aplastas
+  botonA_FuePresionado() {
+    const presionadoAhora = (this.esp32Data.btnA === 0);
+    const presionadoAntes = (this.botonAPrevio === 0);
+
+    this.botonAPrevio = this.esp32Data.btnA;
+
+    return presionadoAhora && !presionadoAntes;
   }
 }
