@@ -83,8 +83,10 @@ export class Personaje extends Phaser.Physics.Arcade.Sprite {
         this.vida -= danio;
     } else {
         this.vida-=danio
-        if(this.vida<=0){
-            console.log(`${this.nombre} ha sido derrotado.`);
+        if (this.vida <= 0) {
+          this.setScale(0.5);
+          this.anims.play('heroe_muere');
+          console.log(`${this.nombre} ha sido derrotado.`);
         }
     }
   }

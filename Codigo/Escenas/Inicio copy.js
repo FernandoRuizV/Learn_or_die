@@ -1,14 +1,14 @@
 import { Escena_base } from "./Escena_base.js";
 
-export class Niveles extends Escena_base {
+export class Inicio extends Escena_base {
   constructor() {
-    super("Niveles", {
+    super("Inicio", {
       dialogue: []
     });
   }
 preload() {
   super.preload();
-  this.load.image('mapa', 'Assets/mapa_fondo.png');
+  this.load.image('Inicio', 'Assets/Inicio_presentacion.jpeg');
   this.load.image('menu', 'Assets/Menu.png');
 }
 create() {
@@ -19,16 +19,14 @@ create() {
 
     this.movimientoBloqueado = false;
     const { width, height } = this.sys.canvas;
-    this.fondo = this.add.image(width / 2, height / 2, 'mapa');
-    const escalaX = width / 2612;
-    const escalaY = height / 1632;
-    const escalaFinal = Math.min(escalaX, escalaY);
+    this.fondo = this.add.image(width / 2, height / 2, 'Inicio');
+    const escalaX = width / 1920;
+    const escalaY = height / 1080;
+    const escalaFinal = Math.max(escalaX, escalaY);
 
     this.fondo.setScale(escalaFinal);
     this.menu.setPosition(width - 60, 60).setDepth(200);
 
-
-    
     const btnWidth = 250;
     const btnHeight = 80;
     const margin = 40;
@@ -53,7 +51,7 @@ create() {
     this.dialogue.start(
       [""], 
       () => {
-        this.scene.start('Nivel1');
+        this.scene.start('Intro');
       }
     ,false);
 }

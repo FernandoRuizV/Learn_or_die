@@ -88,13 +88,25 @@ export class Nivel1 extends Escena_base {
           ], 
           () => { this.movimientoBloqueado = false; }
       ,true);
-      this.questions.ask('Nivel_1', (esCorrecto) => {
-      if (esCorrecto === null) return; 
-      this.procesarResultadoCombate(esCorrecto, this.zombie); 
-       this.estadisticas();
     });
+
+    this.time.delayedCall(40000, () => {
+      this.movimientoBloqueado = true;
+      this.dialogue.start(
+          ["Para defenderte, tendrás que responder correctamente a las preguntas",
+            "Es la unica forma de derrotar a este enemigo, así que hazlo lo mejor que puedas",
+            "Descuida, no es tan difícil como parece."
+          ], 
+          () => { this.movimientoBloqueado = false; }
+      ,true);
+    this.questions.ask('Nivel_1', (esCorrecto) => {
+        if (esCorrecto === null) return; 
+          this.procesarResultadoCombate(esCorrecto, this.zombie); 
+          if(this.zombie.vida <= 0 || this.player.vida <= 0){
+            this.estadisticas();
+          }
+        });
     });
-    
 
   }
   
