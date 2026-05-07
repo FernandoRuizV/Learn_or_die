@@ -15,6 +15,7 @@ export class FlashcardManager {
             });
             this.elementosActivos = [];
         }
+        this.scene.physics.resume();
     }
 
   cargarFlashcards(jsonKey) {
@@ -66,10 +67,35 @@ export class FlashcardManager {
             0x000000,
             0.45
         )
-        .setDepth(199)
+        .setDepth(9998)
         .setScrollFactor(0);
+        // Hacemos que el overlay sea interactivo para detectar clics fuera de la tarjeta
+        overlay.setInteractive(
+        new Phaser.Geom.Rectangle(
+            0,
+            0,
+            camWidth,
+            camHeight
+        ),
+        Phaser.Geom.Rectangle.Contains
+        );
+
+        // Evitamos que el clic en la tarjeta se propague al overlay
+        overlay.on('pointerdown', (pointer, localX, localY, event) => {
+            event.stopPropagation();
+            this.cerrar(); // Cerramos las flashcards al hacer clic en el overlay
+
+        });
 
         elementos.push(overlay);
+
+        // Cerrar al hacer clic en el overlay
+        overlay.on("pointerdown", () => {
+            this.scene.physics.resume();
+            this.cerrar();
+            this.scene.flashcardsAbiertas = false;
+            this.scene.movimientoBloqueado = false;
+        });
 
         // Carta principal
         const card = this.scene.add.rectangle(
@@ -80,7 +106,7 @@ export class FlashcardManager {
             0xf4e6c2
         )
         .setStrokeStyle(8, 0x3b2416)
-        .setDepth(200)
+        .setDepth(9999)
         .setInteractive();
 
         elementos.push(card);
@@ -93,7 +119,7 @@ export class FlashcardManager {
             height - 20
         )
         .setStrokeStyle(4, 0xc89b3c)
-        .setDepth(201);
+        .setDepth(10000);
 
         elementos.push(innerBorder);
 
@@ -113,7 +139,7 @@ export class FlashcardManager {
             }
         )
         .setOrigin(0.5)
-        .setDepth(202);
+        .setDepth(10000);
 
         elementos.push(tituloTxt);
 
@@ -131,7 +157,7 @@ export class FlashcardManager {
             }
         )
         .setOrigin(0.5)
-        .setDepth(202);
+        .setDepth(10000);
 
         elementos.push(contenidoTxt);
 
@@ -147,7 +173,7 @@ export class FlashcardManager {
             }
         )
         .setOrigin(0.5)
-        .setDepth(202);
+        .setDepth(10000);
 
         elementos.push(contador);
 
@@ -168,7 +194,7 @@ export class FlashcardManager {
         )
         .setOrigin(0.5)
         .setInteractive()
-        .setDepth(203);
+        .setDepth(10000);
 
         elementos.push(btnAtras);
 
@@ -189,7 +215,7 @@ export class FlashcardManager {
         )
         .setOrigin(0.5)
         .setInteractive()
-        .setDepth(203);
+        .setDepth(10000);
 
         elementos.push(btnSiguiente);
 

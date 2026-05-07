@@ -25,6 +25,7 @@ export class Nivel1 extends Escena_base {
     this.flashcardsAbiertas = false; // Variable para controlar el estado de las flashcards (abierto o cerrado)
     this.dialogue.border.setVisible(true);
     this.dialogue.avatar.setVisible(true);
+    this.input.topOnly = true;
 
     // Botón para mostrar flashcards
     const btnFlashcards = this.add.text(50, 50, "💡", {
@@ -44,23 +45,16 @@ export class Nivel1 extends Escena_base {
 
       // Si estan abiertas -> cerrarlas
       if (this.flashcardsAbiertas) {
-
         this.flashcards.cerrar();
-
         this.flashcardsAbiertas = false;
-
         this.movimientoBloqueado = false;
-
         return;
       }
 
-      // ABRIR FLASHCARDS
+      // Abrir flashcards
       this.movimientoBloqueado = true;
-
       this.flashcardsAbiertas = true;
-
       this.flashcards.mostrar("flashcards");
-
     });
 
     this.physics.add.collider(this.player, this.zombie);
