@@ -42,10 +42,10 @@ export class QuestionManager {
     const camWidth = this.scene.cameras.main.width;
     const camHeight = this.scene.cameras.main.height;
 
-    const width = camWidth * 0.4;
-    const x = camWidth * 0.55;
-    const y = camHeight - 600;
-    const height = 350;
+    const width = camWidth * 0.3;
+    const x = camWidth - width - 120;
+    const y = 25;
+    const height = camHeight*0.3;
 
     const elementos = [];
 
@@ -57,8 +57,8 @@ export class QuestionManager {
     background.setScrollFactor(0).setDepth(100);
     elementos.push(background);
 
-    const txt = this.scene.add.text(x + width / 2, y + 60, questionText, {
-      fontSize: "28px",
+    const txt = this.scene.add.text(x + width / 2, y + 40, questionText, {
+      fontSize: "20px",
       fontFamily: "Arial, sans-serif",
       fill: "#ffffff",
       align: 'center',
@@ -69,12 +69,12 @@ export class QuestionManager {
     elementos.push(txt);
 
     const btnAncho = width * 0.40;
-    const btnAlto = 180;
+    const btnAlto = 120;
     const gap = width * 0.04; 
     const totalBtns = btnAncho * 2 + gap; 
     const startX = x + (width - totalBtns) / 2; 
 
-    const btnY = y + 150; 
+    const btnY = y + 80; 
 
     const btnPositions = [
       startX,
@@ -98,7 +98,7 @@ export class QuestionManager {
       drawBtn(0x000000, 0xffffff);
 
       const btnTxt = this.scene.add.text(btnX + btnAncho / 2, btnY + btnAlto / 2, opt, {
-        fontSize: '20px',
+        fontSize: '18px',
         fill: '#ffffff',
         fontFamily: "Arial, sans-serif",
         fontStyle: 'bold',

@@ -36,6 +36,7 @@ export class Escena_base extends Phaser.Scene {
     this.load.image('corazon85', 'Assets/corazon85.png');
     this.load.image('corazon_vacio', 'Assets/corazon_vacio.png');
     this.load.image('estrella', 'Assets/estrella.png');
+    this.load.image('flecha_sig', 'Assets/flecha_sig.png');
     this.load.audio('musica_fondo', 'Sonido/sonido_fondo.mp3');
     this.load.json('Nivel_1', 'Preguntas/Nivel_1.json')
 
@@ -71,7 +72,7 @@ export class Escena_base extends Phaser.Scene {
     this.player.setTexture('personaje_inicio');
     this.dialogue = new DialogueManager(this);
     this.questions = new QuestionManager(this);
-    this.zombie = new Enemigo(this, 1000, 450, 'Zombie', 50, 10, 'zombie_inicio');
+    this.zombie = new Enemigo(this, 1500, 450, 'Zombie', 50, 10, 'zombie_inicio');
     this.zombie.setTexture('zombie_inicio');
     this.zombie.setVisible(false);
     this.rayo = this.add.image(0, 0, 'ataque').setScale(0.1).setVisible(false);
@@ -87,11 +88,13 @@ export class Escena_base extends Phaser.Scene {
     this.boton_pausa = this.add.image(anchoPantalla-300, 440, 'reanudar').setVisible(false).setScale(0.3).setDepth(201);
     this.boton_home = this.add.image(anchoPantalla-360, 350, 'home').setVisible(false).setScale(0.037).setDepth(201);
     this.boton_niveles = this.add.image(anchoPantalla-240, 350, 'niveles').setVisible(false).setScale(0.037).setDepth(201);
+    this.boton_niveles2 = this.add.image(anchoPantalla-240, 350, 'niveles').setVisible(false).setScale(0.05);
     this.corazon_lleno = this.add.image(50, 50, 'corazon_lleno').setScale(0.35).setVisible(false);
     this.corazon_vacio = this.add.image(50, 50, 'corazon_vacio').setScale(0.15).setVisible(false);
     this.corazon25 = this.add.image(50, 50, 'corazon25').setScale(0.35).setVisible(false);
     this.corazon50 = this.add.image(50, 50, 'corazon50').setScale(0.35).setVisible(false);
     this.corazon85 = this.add.image(50, 50, 'corazon85').setScale(0.15).setVisible(false); 
+    this.flecha = this.add.image(0, 0, 'flecha_sig').setScale(0.037).setVisible(false);
     this.Botonlogica(this.boton_menos);
     this.Botonlogica(this.boton_mas);
     this.Botonlogica(this.menu);
@@ -100,6 +103,8 @@ export class Escena_base extends Phaser.Scene {
     this.Botonlogica(this.boton_pausa);
     this.Botonlogica(this.boton_home);
     this.Botonlogica(this.boton_niveles);
+    this.Botonlogica(this.boton_niveles2);
+    this.Botonlogica(this.flecha);
 
     this.estrellas = [];
     const espacioEntreEstrellas = 80; 
@@ -134,7 +139,7 @@ export class Escena_base extends Phaser.Scene {
         align: 'center'
     }).setOrigin(0.5);
 
-    this.uiContenedor = this.add.container((width/2)+10, height/2, [ fondo, this.corazon_lleno, this.corazon_vacio, this.corazon25, this.corazon50, this.corazon85, ...this.estrellas, this.textoVictoria,this.textoEstadisticas, this.textoPuntuacion ]);
+    this.uiContenedor = this.add.container((width/2)+10, height/2, [ fondo, this.corazon_lleno, this.corazon_vacio, this.corazon25, this.corazon50, this.corazon85, ...this.estrellas, this.textoVictoria,this.textoEstadisticas, this.textoPuntuacion, this.flecha, this.boton_niveles2 ]);
     this.uiContenedor.setVisible(false);
 
     
@@ -165,7 +170,7 @@ export class Escena_base extends Phaser.Scene {
     }
     this.musica_fondo.play();
 
-    this.physics.world.setBounds(0, 0, anchoPantalla, altoPantalla);
+    this.physics.world.setBounds(200, 0, anchoPantalla - 400, altoPantalla);
     this.cameras.main.setBounds(0, 0, anchoPantalla, altoPantalla);
     this.cameras.main.startFollow(this.player);
 
@@ -232,6 +237,7 @@ export class Escena_base extends Phaser.Scene {
 
 
   procesarResultadoCombate(esCorrecto, enemigo) {
+    this.dialogue.reset();
     if (esCorrecto) {
         this.player.esta_atacando = true;
         this.player.setScale(0.55);
@@ -335,8 +341,11 @@ Botonlogica(boton){
     if(boton === this.boton_home){
       this.scene.start('Inicio');
     }
-    if(boton === this.boton_niveles){
+    if(boton === this.boton_niveles || boton === this.boton_niveles2){
       this.scene.start('Niveles');
+    }
+    if(boton === this.flecha){
+      this.scene.start('Nivel2');
     }
   });
 }
@@ -350,6 +359,15 @@ estadisticas() {
     const correctas = 10 - incorrectas;
 
     this.time.delayedCall(3500, () => {
+      this.dialogue.reset();
+      if (this.dialogue.container) this.dialogue.container.setVisible(false);
+      if (this.dialogue.border) this.dialogue.border.setVisible(false);
+      if (this.dialogue.avatar) this.dialogue.avatar.setVisible(false);
+      this.flecha.setPosition(300,200).setVisible(true);
+      this.boton_niveles2.setPosition(-300, 200).setVisible(true);
+      this.movimientoBloqueado = true;
+      this.player.setVelocity(0, 0); 
+      this.player.stop(); 
       [this.corazon_lleno, this.corazon85, this.corazon50, this.corazon25, this.corazon_vacio].forEach(c => c.setVisible(false));
       if (this.player.vida >= 100) {
         this.corazon_lleno.setPosition(150, -80).setVisible(true);
@@ -416,6 +434,28 @@ boton_menu(){
     this.texto_home.setVisible(true);
     this.texto_niveles.setVisible(true);
   }
+}
+
+recogerPocion(player, pocion,nombrePocion) {
+  if (!pocion || !pocion.active) return;
+    this.dialogue.reset();
+  pocion.setActive(false);
+  this.player.agregarpocion(nombrePocion);
+  this.expo.setPosition(pocion.x, pocion.y);
+  this.expo.setVisible(true);
+  pocion.destroy();
+  this.time.delayedCall(1000, () => {
+    this.expo.setVisible(false);
+  });
+  this.movimientoBloqueado = true;
+  this.dialogue.start(
+    ["¡Felicidades, la poción ya ha sido agregada a tu inventario!"], 
+      () => { 
+      this.movimientoBloqueado = false; 
+      this.time.delayedCall(10000, () => this.secuenciaEnemigo());
+    }, true);
+  
+  
 }
 
 mostrarDanio(sprite, escena) {

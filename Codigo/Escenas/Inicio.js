@@ -46,7 +46,7 @@ create() {
     this.dialogue.border.destroy();
     this.dialogue.avatar.destroy();
     this.dialogue.moverBoton(posX, posY, btnWidth, btnHeight);
-    
+    this.dialogue.reset();
 
     this.dialogue.start(
       [""], 

@@ -1,7 +1,7 @@
 export class DialogueManager {
   constructor(scene) {
     this.scene = scene;
-    
+    this.mostrando = false; 
     const camWidth = scene.cameras.main.width;
     const camHeight = scene.cameras.main.height;
     const x = camWidth * 0.1;
@@ -73,6 +73,10 @@ export class DialogueManager {
 
   start(dialogues, onComplete, showFull) {
     let index = 0;
+    if(this.mostrando){
+      return;
+    }
+    this.mostrando = true;
     this.botonBorde.setVisible(true);
     this.textBox.setVisible(true);
     this.avatar.setVisible(showFull);
@@ -97,11 +101,17 @@ export class DialogueManager {
   }
 
   hide() {
+    this.mostrando = false;
     this.textBox.setVisible(false);
     this.avatar.setVisible(false);
     this.border.setVisible(false);
     this.nextButton.setVisible(false);
     this.botonBorde.setVisible(false); 
+  }
+
+  reset(){
+    this.mostrando = false;
+    this.hide();
   }
 
   moverBoton(px, py, bw, bh) {
