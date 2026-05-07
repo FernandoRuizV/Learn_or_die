@@ -38,6 +38,7 @@ export class Escena_base extends Phaser.Scene {
     this.load.image('estrella', 'Assets/estrella.png');
     this.load.audio('musica_fondo', 'Sonido/sonido_fondo.mp3');
     this.load.json('Nivel_1', 'Preguntas/Nivel_1.json')
+    this.load.json("flashcards", "Codigo/Flashcards/Flashcards.json"); // Cargamos el JSON de flashcards
 
     this.load.spritesheet('personaje_iz', 'Assets/principal_izquierda.png', { 
       frameWidth: 360, 

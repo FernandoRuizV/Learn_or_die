@@ -1,4 +1,5 @@
 import { Escena_base } from "./Escena_base.js";
+import { FlashcardManager } from "../Flashcards/Flashcards.js"; // Agregamos esta línea para importar FlashcardManager
 
 export class Nivel1 extends Escena_base {
   constructor() {
@@ -20,8 +21,31 @@ export class Nivel1 extends Escena_base {
     this.fondo.tileScaleX = 1.2; 
     this.fondo.tileScaleY = 1;
     super.create(); 
+    this.flashcards = new FlashcardManager(this); // Creamos una instancia de FlashcardManager
     this.dialogue.border.setVisible(true);
     this.dialogue.avatar.setVisible(true);
+
+    // Botón para mostrar flashcards
+    const btnFlashcards = this.add.text(50, 50, "💡", {
+      fontSize: "28px",
+      fill: "#ffffff",
+      backgroundColor: "#000000",
+      padding: {
+        x: 15,
+        y: 10
+      }
+    })
+    .setInteractive()
+    .setScrollFactor(0)
+    .setDepth(999);
+
+    btnFlashcards.on("pointerdown", () => {
+
+      this.movimientoBloqueado = true;
+
+      this.flashcards.mostrar("flashcards");
+
+    });
 
     this.physics.add.collider(this.player, this.zombie);
     this.combateActivo = true;
