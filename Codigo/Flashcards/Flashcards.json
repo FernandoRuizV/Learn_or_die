@@ -1,10 +1,30 @@
 [
   {
-    "titulo": "¿Qué es el reciclaje?",
-    "contenido": "El reciclaje es el proceso de convertir residuos en nuevos materiales útiles."
+    "titulo": "¿Qué es reciclar?",
+    "contenido": "Reciclar significa transformar materiales usados como plástico, vidrio o papel en nuevos productos útiles. Esto ayuda a reducir la contaminación y ahorrar recursos naturales."
   },
   {
-    "titulo": "Separación de basura",
-    "contenido": "La basura orgánica e inorgánica debe separarse para facilitar su tratamiento."
+    "titulo": "Separación de residuos",
+    "contenido": "Cada tipo de basura debe colocarse en el contenedor correcto. El papel suele ir en el bote azul y el vidrio en el verde."
+  },
+  {
+    "titulo": "Botellas de plástico",
+    "contenido": "Las botellas de plástico sí pueden reciclarse. Antes de tirarlas al contenedor, es importante enjuagarlas para evitar contaminación."
+  },
+  {
+    "titulo": "¿Por qué reciclar ayuda?",
+    "contenido": "Reciclar disminuye la cantidad de basura en el planeta, reduce la contaminación y protege animales y ecosistemas."
+  },
+  {
+    "titulo": "La regla de las 3R",
+    "contenido": "Las 3R significan Reducir, Reutilizar y Reciclar. Son acciones importantes para cuidar el medio ambiente."
+  },
+  {
+    "titulo": "Composta",
+    "contenido": "Los restos de comida y cáscaras pueden convertirse en composta, un abono natural muy útil para las plantas."
+  },
+  {
+    "titulo": "El plástico y la naturaleza",
+    "contenido": "El plástico tarda cientos de años en degradarse. Por eso es importante reciclarlo y usar menos productos desechables."
   }
 ]
