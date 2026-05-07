@@ -221,11 +221,9 @@ export class FlashcardManager {
 
         // HOVER
         [btnAtras, btnSiguiente].forEach(btn => {
-
             btn.on("pointerover", () => {
             btn.setScale(1.1);
             });
-
             btn.on("pointerout", () => {
             btn.setScale(1);
             });
@@ -264,29 +262,21 @@ export class FlashcardManager {
 
         // SIGUIENTE
         btnSiguiente.on("pointerdown", () => {
-
             elementos.forEach(el => el.destroy());
-
             this.indiceActual++;
-
             if (this.indiceActual >= this.flashcards.length) {
             this.indiceActual = 0;
             }
-
             this.mostrar("flashcards");
         });
 
         // ATRÁS
         btnAtras.on("pointerdown", () => {
-
             elementos.forEach(el => el.destroy());
-
             this.indiceActual--;
-
             if (this.indiceActual < 0) {
             this.indiceActual = this.flashcards.length - 1;
             }
-
             this.mostrar("flashcards");
         });
     }

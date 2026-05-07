@@ -28,7 +28,7 @@ export class Nivel1 extends Escena_base {
     this.input.topOnly = true;
 
     // Botón para mostrar flashcards
-    const btnFlashcards = this.add.text(50, 50, "💡", {
+    const btnFlashcards = this.add.text(50, 50, "Ayuda 💡", {
       fontSize: "28px",
       fill: "#ffffff",
       backgroundColor: "#000000",
