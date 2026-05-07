@@ -206,26 +206,33 @@ export class FlashcardManager {
         });
 
         // CLICK EN LA CARTA = GIRAR
-        card.on("pointerdown", () => {
-
-            if (mostrandoReverso) return;
-
-            mostrandoReverso = true;
-
-            this.scene.tweens.add({
+       card.on("pointerdown", () => {
+        this.scene.tweens.add({
             targets: [card, innerBorder, tituloTxt, contenidoTxt],
             scaleX: 0,
             duration: 180,
             onComplete: () => {
-
-                contenidoTxt.setText(contenido);
-
-                this.scene.tweens.add({
-                targets: [card, innerBorder, tituloTxt, contenidoTxt],
-                scaleX: 1,
-                duration: 180
-                });
+            // Si está mostrando el reverso
+            if (mostrandoReverso) {
+                mostrandoReverso = false;
+                tituloTxt.setText(titulo);
+                contenidoTxt.setText(
+                "Click para ver información"
+                );
             }
+            // Si está mostrando el frente
+            else {
+                mostrandoReverso = true;
+                tituloTxt.setText(titulo);
+                contenidoTxt.setText(contenido);
+            }
+                // Volver a mostrar la carta con la nueva información
+                this.scene.tweens.add({
+                    targets: [card, innerBorder, tituloTxt, contenidoTxt],
+                    scaleX: 1,
+                    duration: 180
+             });
+                }
             });
         });
 
