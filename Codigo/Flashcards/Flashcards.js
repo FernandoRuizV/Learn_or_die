@@ -4,6 +4,18 @@ export class FlashcardManager {
     this.flashcards = [];
     this.indiceActual = 0;
   }
+  
+  // Método para cerrar las flashcards y limpiar los elementos
+  cerrar() {
+        if (this.elementosActivos) {
+            this.elementosActivos.forEach(el => {
+            if (el && el.destroy) {
+                el.destroy();
+            }
+            });
+            this.elementosActivos = [];
+        }
+    }
 
   cargarFlashcards(jsonKey) {
     const data = this.scene.cache.json.get(jsonKey);
@@ -43,6 +55,7 @@ export class FlashcardManager {
         const y = camHeight / 2;
 
         const elementos = [];
+        this.elementosActivos = elementos; // Guardamos los elementos para poder destruirlos luego
 
         // Overlay oscuro
         const overlay = this.scene.add.rectangle(

@@ -22,6 +22,7 @@ export class Nivel1 extends Escena_base {
     this.fondo.tileScaleY = 1;
     super.create(); 
     this.flashcards = new FlashcardManager(this); // Creamos una instancia de FlashcardManager
+    this.flashcardsAbiertas = false; // Variable para controlar el estado de las flashcards (abierto o cerrado)
     this.dialogue.border.setVisible(true);
     this.dialogue.avatar.setVisible(true);
 
@@ -41,7 +42,22 @@ export class Nivel1 extends Escena_base {
 
     btnFlashcards.on("pointerdown", () => {
 
+      // Si estan abiertas -> cerrarlas
+      if (this.flashcardsAbiertas) {
+
+        this.flashcards.cerrar();
+
+        this.flashcardsAbiertas = false;
+
+        this.movimientoBloqueado = false;
+
+        return;
+      }
+
+      // ABRIR FLASHCARDS
       this.movimientoBloqueado = true;
+
+      this.flashcardsAbiertas = true;
 
       this.flashcards.mostrar("flashcards");
 
