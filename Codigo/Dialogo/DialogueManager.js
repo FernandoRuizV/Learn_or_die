@@ -70,12 +70,11 @@ export class DialogueManager {
     });
    
   }
-
   start(dialogues, onComplete, showFull) {
-    let index = 0;
-    if(this.mostrando){
-      return;
-    }
+    if(this.mostrando) return;
+    this.currentDialogues = dialogues;
+    this.onCompleteCallback = onComplete;
+    this.currentIndex = 0; 
     this.mostrando = true;
     this.botonBorde.setVisible(true);
     this.textBox.setVisible(true);
@@ -83,23 +82,23 @@ export class DialogueManager {
     this.border.setVisible(showFull);
     this.nextButton.setVisible(true);
     
-    this.textBox.setText(dialogues[index]);
+    this.textBox.setText(this.currentDialogues[this.currentIndex]);
     this.nextButton.off('pointerdown');
-
     this.nextButton.on('pointerdown', (pointer, localX, localY, event) => {
-      if (this.scene.panel && this.scene.panel.visible) return;
-      if (event) event.stopPropagation();
-
-      index++;
-      if (index < dialogues.length) {
-        this.textBox.setText(dialogues[index]);
-      } else {
-        this.hide();
-        if (onComplete) onComplete();
-      }
+        if (event) event.stopPropagation();
+        this.next();
     });
   }
-
+  next() {
+    if (!this.mostrando) return;
+    this.currentIndex++;
+    if (this.currentIndex < this.currentDialogues.length) {
+        this.textBox.setText(this.currentDialogues[this.currentIndex]);
+    } else {
+        this.hide();
+        if (this.onCompleteCallback) this.onCompleteCallback();
+    }
+  }
   hide() {
     this.mostrando = false;
     this.textBox.setVisible(false);

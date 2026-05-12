@@ -20,11 +20,13 @@ export class Personaje extends Phaser.Physics.Arcade.Sprite {
   actualizarMovimiento(input, estaBloqueado) {
     if (estaBloqueado) {
       this.setVelocityX(0);
+      this.setVelocityY(0);
       this.stop(); 
       this.setTexture('personaje_inicio');
       return;
     }
     this.setVelocityX(0);
+    this.setVelocityY(0);
     if (input.left) {
       this.setVelocityX(-160);
       this.anims.play('caminar_izq', true);
@@ -33,6 +35,14 @@ export class Personaje extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityX(160);
       this.anims.play('caminar_der', true);
     } 
+    else if (input.up) {
+      this.setVelocityY(-160);
+      this.anims.play('caminar_arr', true);
+    }
+    else if (input.down) {
+      this.setVelocityY(160);
+      this.anims.play('caminar_aba', true);
+    }
     else {
       this.stop();
       this.setTexture('personaje_inicio');

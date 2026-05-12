@@ -3,8 +3,9 @@ import { Nivel1 } from "./Escenas/Nivel1.js";
 import { Intro } from "./Escenas/Intro.js";
 import { Inicio } from "./Escenas/Inicio.js";
 import { Niveles } from "./Escenas/Niveles.js";
+import { Especial } from "./Escenas/Especial.js";
 
-config.scene = [Inicio,Intro,Niveles,Nivel1];
+config.scene = [Inicio,Intro,Niveles,Nivel1,Especial];
 
 new Phaser.Game(config);
 if (window.Cypress) {

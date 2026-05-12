@@ -38,7 +38,7 @@ export class Escena_base extends Phaser.Scene {
     this.load.image('estrella', 'Assets/estrella.png');
     this.load.image('flecha_sig', 'Assets/flecha_sig.png');
     this.load.audio('musica_fondo', 'Sonido/sonido_fondo.mp3');
-    this.load.json('Nivel_1', 'Preguntas/Nivel_1.json')
+    this.load.json('Nivel_1', 'Preguntas/Nivel_1.json');
 
     this.load.spritesheet('personaje_iz', 'Assets/principal_izquierda.png', { 
       frameWidth: 360, 
@@ -64,7 +64,12 @@ export class Escena_base extends Phaser.Scene {
       frameWidth: 410, 
       frameHeight: 476
     });
+    this.load.spritesheet('flechas', 'Assets/flechas_intermi.png', { 
+      frameWidth: 300, 
+      frameHeight: 203
+    });
   }
+
 
   create() {
     this.inputManager = new InputManager(this);
@@ -105,6 +110,19 @@ export class Escena_base extends Phaser.Scene {
     this.Botonlogica(this.boton_niveles);
     this.Botonlogica(this.boton_niveles2);
     this.Botonlogica(this.flecha);
+    this.vida = this.add.image(100, 50, 'corazon_lleno').setScale(0.35).setVisible(false);
+    this.vidaActual = 100;
+    this.vidaMaxima = 100;
+    this.barraSalud = this.add.graphics().setVisible(false);
+    this.xBarra = 130;
+    this.yBarra = 35;
+    this.anchoBarra = 200;
+    this.altoBarra = 20;
+    this.vidaMaximaEnemigo = 50;
+    this.barraSaludEnemigo = this.add.graphics().setVisible(false);
+    this.anchoBarraEnemigo = 100;
+    this.altoBarraEnemigo = 10;
+    this.especial = false;
 
     this.estrellas = [];
     const espacioEntreEstrellas = 80; 
@@ -233,6 +251,22 @@ export class Escena_base extends Phaser.Scene {
         repeat: 0
       });
     }
+    if (!this.anims.exists('flechas_izq')) {
+      this.anims.create({ 
+        key: 'flechas_izq',
+        frames: this.anims.generateFrameNumbers('flechas', { frames:[0,2] }), 
+        frameRate: 5, 
+        repeat: -1
+      });
+    }
+    if (!this.anims.exists('flechas_der')) {
+      this.anims.create({ 
+        key: 'flechas_der',
+        frames: this.anims.generateFrameNumbers('flechas', { frames:[1,3] }), 
+        frameRate: 5, 
+        repeat: -1
+      });
+    }
   }
 
 
@@ -342,16 +376,21 @@ Botonlogica(boton){
       this.scene.start('Inicio');
     }
     if(boton === this.boton_niveles || boton === this.boton_niveles2){
-      this.scene.start('Niveles');
+      this.scene.start('Niveles'); 
     }
-    if(boton === this.flecha){
+    if(boton === this.flecha && this.player.nivel == 2){
       this.scene.start('Nivel2');
+    }
+    if(boton === this.flecha && this.player.nivel == 3){
+      this.scene.start('Nivel3');
+    }
+    if(boton === this.flecha && this.player.nivel == 4){
+      this.scene.start('Nivel4');
     }
   });
 }
 
 estadisticas() {
-  if (this.zombie.vida <= 0 || this.player.vida <= 0) {
     this.combateActivo = false;
     let num_estrellas = 0;
     let puntuacion = this.player.vida / 10;
@@ -363,7 +402,6 @@ estadisticas() {
       if (this.dialogue.container) this.dialogue.container.setVisible(false);
       if (this.dialogue.border) this.dialogue.border.setVisible(false);
       if (this.dialogue.avatar) this.dialogue.avatar.setVisible(false);
-      this.flecha.setPosition(300,200).setVisible(true);
       this.boton_niveles2.setPosition(-300, 200).setVisible(true);
       this.movimientoBloqueado = true;
       this.player.setVelocity(0, 0); 
@@ -390,7 +428,10 @@ estadisticas() {
         const ex = (i - 1) * 90;
         this.estrellas[i].setPosition(ex, 150).setVisible(i < num_estrellas);
       }
-      const resultado = this.player.vida > 0 ? "¡VICTORIA!" : "DERROTA";
+      const resultado = this.zombie.vida === 0 ? "¡VICTORIA!" : "DERROTA";
+      if(resultado == "¡VICTORIA!"){
+        this.flecha.setPosition(300,200).setVisible(true);
+      }
       this.textoVictoria.setText(resultado)
       this.textoEstadisticas.setText(
         `Vida Héroe: ${this.player.vida}\n\n\n` +
@@ -400,7 +441,6 @@ estadisticas() {
       this.textoPuntuacion.setText(`Puntuación: ${puntuacion * 10}%`)
       this.uiContenedor.setVisible(true);
     });
-  }
 }
 
 
@@ -438,7 +478,7 @@ boton_menu(){
 
 recogerPocion(player, pocion,nombrePocion) {
   if (!pocion || !pocion.active) return;
-    this.dialogue.reset();
+  this.dialogue.reset();
   pocion.setActive(false);
   this.player.agregarpocion(nombrePocion);
   this.expo.setPosition(pocion.x, pocion.y);
@@ -447,12 +487,10 @@ recogerPocion(player, pocion,nombrePocion) {
   this.time.delayedCall(1000, () => {
     this.expo.setVisible(false);
   });
-  this.movimientoBloqueado = true;
   this.dialogue.start(
     ["¡Felicidades, la poción ya ha sido agregada a tu inventario!"], 
       () => { 
-      this.movimientoBloqueado = false; 
-      this.time.delayedCall(10000, () => this.secuenciaEnemigo());
+      this.time.delayedCall(3500, () => this.secuenciaEnemigo());
     }, true);
   
   
@@ -495,6 +533,40 @@ mostrarDanio(sprite, escena) {
 
   }
 
+  actualizarBarra() {
+    if(this.vida.visible==false){
+      this.vida.setVisible(true);
+      this.barraSalud.setVisible(true);
+    }
+    this.vidaActual = this.player.vida;
+    this.barraSalud.clear();
+    this.barraSalud.fillStyle(0x000000, 0.7);
+    this.barraSalud.fillRect(this.xBarra, this.yBarra, this.anchoBarra, this.altoBarra);
+    let porcentaje = (this.vidaActual / this.vidaMaxima);
+    let anchoFinal = this.anchoBarra * porcentaje;
+    let color = (porcentaje > 0.3) ? 0x00ff00 : 0xff0000; 
+    this.barraSalud.fillStyle(color, 1);
+    if (anchoFinal > 0) {
+      this.barraSalud.fillRect(this.xBarra, this.yBarra, anchoFinal, this.altoBarra);
+    }
+  }
+
+  actualizarBarraEnemigo() {
+    if(this.zombie.visible==true){
+      this.barraSaludEnemigo.setVisible(true);
+    }
+    this.vidaActualEnemigo = this.zombie.vida;
+    this.barraSaludEnemigo.clear();
+    this.barraSaludEnemigo.fillStyle(0x000000, 0.7);
+    this.barraSaludEnemigo.fillRect(this.zombie.x-60, this.zombie.y-90, this.anchoBarraEnemigo, this.altoBarraEnemigo);
+    let porcentajeEnemigo = (this.vidaActualEnemigo / this.vidaMaximaEnemigo);
+    let anchoFinal = this.anchoBarraEnemigo * porcentajeEnemigo;
+    this.barraSaludEnemigo.fillStyle(0xff0000, 1);
+    if (anchoFinal > 0) {
+      this.barraSaludEnemigo.fillRect(this.zombie.x-60, this.zombie.y-90, anchoFinal, this.altoBarraEnemigo);
+    }
+  }
+
   update() {
     if (!this.inputManager) return;
     this.inputManager.update();
@@ -512,9 +584,15 @@ mostrarDanio(sprite, escena) {
             this.player.stop();
             this.player.setTexture('personaje_inicio');
         } else {
-            this.player.actualizarMovimiento(this.inputManager, this.movimientoBloqueado);
+            const input = this.inputManager;
+            const inputFiltrado = {
+                left:  input.left,
+                right: input.right,
+                up:    this.especial ? input.up : false, 
+                down:  this.especial ? input.down : false, 
+            };
+            this.player.actualizarMovimiento(inputFiltrado, this.movimientoBloqueado);
         }
 
-    }
-  }
+  }}
 }

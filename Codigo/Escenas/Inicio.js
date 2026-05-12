@@ -8,7 +8,7 @@ export class Inicio extends Escena_base {
   }
 preload() {
   super.preload();
-  this.load.image('Inicio', 'Assets/Inicio_presentacion1.png');
+  this.load.image('Inicio', 'Assets/Inicio_presentacion.png');
   this.load.image('menu', 'Assets/Menu.png');
 }
 create() {
@@ -22,7 +22,7 @@ create() {
     this.fondo = this.add.image(width / 2, height / 2, 'Inicio');
     const escalaX = width / this.fondo.width;
     const escalaY = height / this.fondo.height;
-    const escalaCover = Math.min(escalaX, escalaY);
+    const escalaCover = Math.max(escalaX, escalaY);
 
     this.fondo.setScale(escalaCover);
     this.menu.setPosition(width - 60, 60).setDepth(200);

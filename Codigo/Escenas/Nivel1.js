@@ -11,8 +11,8 @@ export class Nivel1 extends Escena_base {
     });
   }
   create() {
-    this.fondo = this.add.tileSprite(0, 0, 4000, 1080, 'fondo');
     
+    this.fondo = this.add.tileSprite(0, 0, 4000, 1080, 'fondo');
     this.fondo.setOrigin(0, 0);
     this.fondo.tileScaleX = 1.2; 
     this.fondo.tileScaleY = 1;
@@ -25,7 +25,8 @@ export class Nivel1 extends Escena_base {
     this.expo.setVisible(false);
     this.dialogue.border.setVisible(true);
     this.dialogue.avatar.setVisible(true);
-
+    this.actualizarBarra();
+    this.actualizarBarraEnemigo();
     this.physics.add.collider(this.player, this.zombie);
     this.combateActivo = true;
     
@@ -37,31 +38,32 @@ export class Nivel1 extends Escena_base {
     const posX = width - realWidth - 180; 
     const posY = height - realHeight - 40; 
     this.dialogue.moverBoton(posX, posY, realWidth, realHeight);
-
     
     this.zombie.setImmovable(true);
-
-    this.time.delayedCall(10000, () => this.secuenciaAyuda());
+    this.movimientoBloqueado = false;
+    this.flechas_izq = this.add.sprite(this.player.x - 100, this.player.y , 'flechas').setScale(0.25).setVisible(false);
+    this.flechas_der = this.add.sprite(this.player.x + 100, this.player.y , 'flechas').setScale(0.25).setVisible(false);
+    this.flechas_izq.setPosition(this.player.x-100, this.player.y).setVisible(true);
+    this.flechas_izq.play('flechas_izq');
+    this.flechas_der.setPosition(this.player.x+100, this.player.y).setVisible(true);
+    this.flechas_der.play('flechas_der');
+    this.time.delayedCall(5000, () => this.secuenciaAyuda());
 
 }
-
   secuenciaAyuda() {
-    this.movimientoBloqueado = true;
     this.dialogue.start(
       ["Recuerda que estoy aquí para ayudarte cuando lo necesites",
         "Por ahora sólo ten cuidado y revisa cuidadosamente tu entorno",
         "Se acercan nuevos peligros..."
       ],
       () => {
-        this.movimientoBloqueado = false;
-        this.time.delayedCall(10000, () => this.secuenciaPocion());
+        this.time.delayedCall(3500, () => this.secuenciaPocion());
       },
       true);
   }
 
   secuenciaPocion() {
     this.pocion.setVisible(true);
-    this.movimientoBloqueado = true;
 
     this.dialogue.start(
       ["¡Mira, hay una poción en el camino!",
@@ -69,7 +71,6 @@ export class Nivel1 extends Escena_base {
         "Dale click para agregarla a tu inventario..."
       ],
       () => { 
-        this.movimientoBloqueado = false; 
         this.pocion.body.enable = true;
         this.overlapPocion =this.physics.add.collider(
           this.player, 
@@ -90,40 +91,56 @@ export class Nivel1 extends Escena_base {
     this.zombie.body.enable = true;
     this.zombie.setPosition(this.player.x + 200, this.player.y);
     this.zombie.setVisible(true);
-    this.movimientoBloqueado = true;
+    this.actualizarBarraEnemigo();
     this.dialogue.start(
       ["¡Cuidado, un enemigo ha aparecido!",
         "Tendrás que luchar contra él para protegerte...",
         "Descuida, te enseñaré como hacerlo"
       ],
       () => {
-        this.movimientoBloqueado = false;
-        this.time.delayedCall(5000, () => this.secuenciaCombate());
+        this.time.delayedCall(2000, () => this.secuenciaCombate());
       },
       true);
   }
 
   secuenciaCombate() {
-    this.movimientoBloqueado = true;
     this.dialogue.start(
       ["Para defenderte, tendrás que responder correctamente a las preguntas",
         "Es la unica forma de derrotar a este enemigo, así que hazlo lo mejor que puedas",
         "Descuida, no es tan difícil como parece."
       ],
-      () => { this.movimientoBloqueado = false; },
+      () => { },
       true);
 
     this.questions.ask('Nivel_1', (esCorrecto) => {
       if (esCorrecto === null) return;
       this.procesarResultadoCombate(esCorrecto, this.zombie);
-      if (this.zombie.vida <= 0 || this.player.vida <= 0) {
+      this.actualizarBarra();
+      this.actualizarBarraEnemigo();
+      if (this.questions.preguntas.length === this.questions.indiceActual || this.zombie.vida <= 0 || this.player.vida <= 0) {
         this.estadisticas();
+        if(this.zombie.vida===0){this.player.nivel=2;}
       }
     });
   }
   
 
+
   update() {
     super.update();
+    const seMueve = Math.abs(this.player.body.velocity.x) > 0.3
+    if(this.dialogue.mostrando && !this.esperando && seMueve){
+      this.dialogue.next();
+      this.esperando = true;
+      this.time.delayedCall(1000, () => {
+        this.esperando = false;
+      });
+    }
+    if(this.inputManager.right){
+      this.flechas_der.destroy();
+    }
+    if(this.inputManager.left){
+      this.flechas_izq.destroy();
+    }
   }
 }
