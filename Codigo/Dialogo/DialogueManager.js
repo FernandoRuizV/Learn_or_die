@@ -1,7 +1,7 @@
 export class DialogueManager {
   constructor(scene) {
     this.scene = scene;
-    
+    this.mostrando = false; 
     const camWidth = scene.cameras.main.width;
     const camHeight = scene.cameras.main.height;
     const x = camWidth * 0.1;
@@ -70,38 +70,47 @@ export class DialogueManager {
     });
    
   }
-
   start(dialogues, onComplete, showFull) {
-    let index = 0;
+    if(this.mostrando) return;
+    this.currentDialogues = dialogues;
+    this.onCompleteCallback = onComplete;
+    this.currentIndex = 0; 
+    this.mostrando = true;
     this.botonBorde.setVisible(true);
     this.textBox.setVisible(true);
     this.avatar.setVisible(showFull);
     this.border.setVisible(showFull);
     this.nextButton.setVisible(true);
     
-    this.textBox.setText(dialogues[index]);
+    this.textBox.setText(this.currentDialogues[this.currentIndex]);
     this.nextButton.off('pointerdown');
-
     this.nextButton.on('pointerdown', (pointer, localX, localY, event) => {
-      if (this.scene.panel && this.scene.panel.visible) return;
-      if (event) event.stopPropagation();
-
-      index++;
-      if (index < dialogues.length) {
-        this.textBox.setText(dialogues[index]);
-      } else {
-        this.hide();
-        if (onComplete) onComplete();
-      }
+        if (event) event.stopPropagation();
+        this.next();
     });
   }
-
+  next() {
+    if (!this.mostrando) return;
+    this.currentIndex++;
+    if (this.currentIndex < this.currentDialogues.length) {
+        this.textBox.setText(this.currentDialogues[this.currentIndex]);
+    } else {
+        this.hide();
+        if (this.onCompleteCallback) this.onCompleteCallback();
+    }
+  }
   hide() {
+    this.mostrando = false;
     this.textBox.setVisible(false);
     this.avatar.setVisible(false);
     this.border.setVisible(false);
     this.nextButton.setVisible(false);
     this.botonBorde.setVisible(false); 
+  }
+
+  reset(){
+    this.mostrando = false;
+    this.hide();
   }
 
   moverBoton(px, py, bw, bh) {

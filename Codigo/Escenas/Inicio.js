@@ -8,7 +8,7 @@ export class Inicio extends Escena_base {
   }
 preload() {
   super.preload();
-  this.load.image('Inicio', 'Assets/Inicio_presentacion.jpeg');
+  this.load.image('Inicio', 'Assets/Inicio_presentacion.png');
   this.load.image('menu', 'Assets/Menu.png');
 }
 create() {
@@ -20,11 +20,11 @@ create() {
     this.movimientoBloqueado = false;
     const { width, height } = this.sys.canvas;
     this.fondo = this.add.image(width / 2, height / 2, 'Inicio');
-    const escalaX = width / 1920;
-    const escalaY = height / 1080;
-    const escalaFinal = Math.max(escalaX, escalaY);
+    const escalaX = width / this.fondo.width;
+    const escalaY = height / this.fondo.height;
+    const escalaCover = Math.max(escalaX, escalaY);
 
-    this.fondo.setScale(escalaFinal);
+    this.fondo.setScale(escalaCover);
     this.menu.setPosition(width - 60, 60).setDepth(200);
 
     const btnWidth = 250;
@@ -46,7 +46,7 @@ create() {
     this.dialogue.border.destroy();
     this.dialogue.avatar.destroy();
     this.dialogue.moverBoton(posX, posY, btnWidth, btnHeight);
-    
+    this.dialogue.reset();
 
     this.dialogue.start(
       [""], 

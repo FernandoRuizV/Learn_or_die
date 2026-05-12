@@ -9,7 +9,7 @@ export class InputManager {
 
     // Agregamos "y" y "btnA" a los datos
     this.esp32Data = { x: 2048, y: 2048, btnA: 1 }; 
-    this.esp32IP = "http://192.168.100.232";
+    this.esp32IP = "http://172.26.163.97";
     
     // Variable para evitar que el diálogo se salte de golpe (Efecto metralleta)
     this.botonAPrevio = 1; 
@@ -26,7 +26,6 @@ export class InputManager {
         const respuesta = await fetch(this.esp32IP, { signal: controlador.signal });
         const texto = await respuesta.text();
    
-        // CORRECCIÓN: Separamos por salto de línea (\n) como lo tienes en tu control.ino
         const lineas = texto.split("\n");
 
         // Parseamos cada línea separando por los dos puntos ":"
