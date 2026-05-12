@@ -36,8 +36,8 @@ export class InputManager {
        clearTimeout(timeoutId);
        } catch (error) {
       // Si falla la conexión, ponemos valores neutros
-        this.esp32Data.x = 2048;
-        this.esp32Data.y = 2048;
+        this.esp32Data.x = 360;
+        this.esp32Data.y = 1879;
         this.esp32Data.btnA = 1;
       }
     }, 100); 
@@ -49,8 +49,8 @@ export class InputManager {
     const tecladoDerecha = this.cursors.right.isDown || this.keys.D.isDown;
 
     // 2. Lógica de Joystick Físico
-    const joystickIzquierda = this.esp32Data.x < 1000;
-    const joystickDerecha = this.esp32Data.x > 3000;
+    const joystickIzquierda = this.esp32Data.x < 360;
+    const joystickDerecha = this.esp32Data.x > 360;
 
     // 3. Combinamos ambos: si cualquiera se activa, el personaje se mueve
     this.left = tecladoIzquierda || joystickIzquierda;
