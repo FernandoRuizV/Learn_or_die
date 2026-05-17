@@ -123,6 +123,19 @@ export class Escena_base extends Phaser.Scene {
     this.anchoBarraEnemigo = 100;
     this.altoBarraEnemigo = 10;
     this.especial = false;
+    this.combateActivo = false;
+    
+    this.iniciarNavegacionJoystick([
+      this.menu,
+      this.dialogue.nextButton,
+      this.sonido_icono,
+      this.boton_menos,
+      this.boton_mas,
+      this.musica_icono,
+      this.boton_home,
+      this.boton_niveles,
+      this.boton_pausa
+   ]);
 
     this.estrellas = [];
     const espacioEntreEstrellas = 80; 
@@ -196,9 +209,7 @@ export class Escena_base extends Phaser.Scene {
     this.movimientoBloqueado = false;
 
     if (this.levelData.dialogue) {
-      this.movimientoBloqueado = true; 
       this.dialogue.start(this.levelData.dialogue, () => {
-        this.movimientoBloqueado = false;
       });
     }
   
@@ -566,10 +577,57 @@ mostrarDanio(sprite, escena) {
       this.barraSaludEnemigo.fillRect(this.zombie.x-60, this.zombie.y-90, anchoFinal, this.altoBarraEnemigo);
     }
   }
+iniciarNavegacionJoystick(botones) {
+  this.botonesNav = botones;
+  this.botonesNavCopia = this.botonesNav;
+  this.indiceSeleccionado = 1;
+  this.botonAAnterior = false;
+  this.joystickMovioAnterior = false;
+  this.botonesNav[1].emit('pointerover');
+}
+
+actualizarNavegacionJoystick() {
+  if (!this.botonesNav || this.botonesNav.length === 0 || this.inputManager.esp32Data.botonA === 1) return;
+  const data = this.inputManager.esp32Data;
+  const moverAbajo = data.y > 2000;
+  const moverArriba = data.y < 30;
+  const joystickMovio = moverAbajo || moverArriba;
+  const Presionado = data.joyBtn === 1;
+
+  if (joystickMovio && !this.joystickMovioAnterior) {
+    this.botonesNavCopia[this.indiceSeleccionado].emit('pointerout');
+    if(this.panel.visible){
+      this.botonesNavCopia = [this.menu, this.sonido_icono, this.boton_menos, this.boton_mas, this.musica_icono, this.boton_home, this.boton_niveles, this.boton_pausa];
+    }else{
+      this.botonesNavCopia = [this.botonesNav[0], this.botonesNav[1]];
+    }
+    if(this.combateActivo && !this.panel.visible){
+      this.botonesNavCopia = [this.menu, this.questions.botonA, this.questions.botonB, this.dialogue.nextButton];
+    }
+    if(this.uiContenedor.visible && !this.panel.visible){
+      this.botonesNavCopia = [this.menu, this.boton_niveles2, this.flecha];
+    }
+    if (moverAbajo) {
+      this.indiceSeleccionado = (this.indiceSeleccionado + 1) % this.botonesNavCopia.length;
+    } else {
+      this.indiceSeleccionado = (this.indiceSeleccionado - 1 + this.botonesNavCopia.length) % this.botonesNavCopia.length;
+    }
+    this.botonesNavCopia[this.indiceSeleccionado].emit('pointerover');
+  }
+  this.joystickMovioAnterior = joystickMovio;
+  
+  if (Presionado && !this.botonAAnterior) {
+    this.botonesNavCopia[this.indiceSeleccionado].emit('pointerdown');
+  }
+
+  this.botonAAnterior = Presionado;
+}
 
   update() {
     if (!this.inputManager) return;
     this.inputManager.update();
+    console.log('bloqueado:', this.movimientoBloqueado, '| left:', this.inputManager.left, '| right:', this.inputManager.right);
+    this.actualizarNavegacionJoystick();
 
     if (this.player) {
         if (this.player.esta_atacando) {

@@ -28,7 +28,7 @@ export class Nivel1 extends Escena_base {
     this.actualizarBarra();
     this.actualizarBarraEnemigo();
     this.physics.add.collider(this.player, this.zombie);
-    this.combateActivo = true;
+    
     
     const { width, height } = this.sys.canvas;
     const btnWidth = 230;
@@ -46,8 +46,11 @@ export class Nivel1 extends Escena_base {
     this.flechas_izq.setPosition(this.player.x-100, this.player.y).setVisible(true);
     this.flechas_izq.play('flechas_izq');
     this.flechas_der.setPosition(this.player.x+100, this.player.y).setVisible(true);
+
     this.flechas_der.play('flechas_der');
     this.time.delayedCall(5000, () => this.secuenciaAyuda());
+
+    
 
 }
   secuenciaAyuda() {
@@ -111,7 +114,7 @@ export class Nivel1 extends Escena_base {
       ],
       () => { },
       true);
-
+      this.combateActivo = true;
     this.questions.ask('Nivel_1', (esCorrecto) => {
       if (esCorrecto === null) return;
       this.procesarResultadoCombate(esCorrecto, this.zombie);

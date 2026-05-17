@@ -1,60 +1,129 @@
 export class InputManager {
   constructor(scene) {
+    if (window._inputManagerInstance) {
+      window._inputManagerInstance.scene = scene;
+      window._inputManagerInstance.cursors = scene.input.keyboard.createCursorKeys();
+      window._inputManagerInstance.keys = scene.input.keyboard.addKeys("W,A,S,D");
+      return window._inputManagerInstance;
+    }
     this.scene = scene;
     this.cursors = scene.input.keyboard.createCursorKeys();
     this.keys = scene.input.keyboard.addKeys("W,A,S,D");
-
     this.left = false;
     this.right = false;
     this.up = false;
     this.down = false;
 
-    this.esp32Data = { x: 2048, y: 2048 }; // Valores iniciales del joystick (centro)
-    this.esp32IP = "http://172.26.166.15";
+    this.esp32Data = { x: 130, y: 1885, joyBtn: 0, botonA: 0 };
+    
+    this.puertoSerial = null;
+    this.lectorSerial = null;
 
+    window._inputManagerInstance = this;
     this.iniciarLecturaFisica();
   }
 
-  async iniciarLecturaFisica() {
-    setInterval(async () => {
-      try {
-        const controlador = new AbortController();
-        const timeoutId = setTimeout(() => controlador.abort(), 500);
+ async iniciarLecturaFisica() {
+  const puertosDisponibles = await navigator.serial.getPorts();
+  
+  if (puertosDisponibles.length > 0) {
+    // Ya fue autorizado antes — conectar automático
+    await this.conectarPuerto(puertosDisponibles[0]);
+  } else {
+    // Primera vez — necesita click del usuario
+    const texto = this.scene.add.text(10, 10, '🔌 Haz clic para conectar el mando', {
+      fontSize: '18px', fill: '#ffffff', backgroundColor: '#000000', padding: { x: 8, y: 6 }
+    }).setDepth(1000).setInteractive();
 
-        const respuesta = await fetch(this.esp32IP, { signal: controlador.signal });
-        const texto = await respuesta.text();
-        const valores = texto.split(",");
+    texto.on('pointerdown', async () => {
+      this.puertoSerial = await navigator.serial.requestPort();
+      texto.destroy();
+      await this.conectarPuerto(this.puertoSerial);
+    });
+  }
+}
+async conectarPuerto(puerto) {
+  try {
+    this.puertoSerial = puerto;
+    await this.puertoSerial.open({ baudRate: 115200 });
+    console.log("¡ESP32 conectada automáticamente!");
 
-        this.esp32Data.x = parseInt(valores[0]);
-        this.esp32Data.y= parseInt(valores[1]);
-        
-        clearTimeout(timeoutId);
-      } catch (error) {
-        // Si falla la conexión, ponemos el joystick en el centro
-        this.esp32Data.x = 2048;
-        this.esp32Data.y = 2048;
+    const decodificador = new TextDecoderStream();
+    this.puertoSerial.readable.pipeTo(decodificador.writable);
+
+    const transformadorLineas = decodificador.readable.pipeThrough(
+      new TransformStream(new LineBreakTransformer())
+    );
+    this.lectorSerial = transformadorLineas.getReader();
+
+    while (true) {
+      const { value, done } = await this.lectorSerial.read();
+      if (done) break;
+      if (value) this.procesarTramaSerial(value);
+    }
+  } catch (error) {
+    console.error("Error al conectar ESP32:", error);
+    this.resetearValoresPorDefecto();
+  }
+}
+
+  procesarTramaSerial(linea) {
+    try {
+      const textoLimpio = linea.trim();
+      if (!textoLimpio) return;
+
+      const valores = textoLimpio.split(",");
+      
+      if (valores.length === 4) {
+        this.esp32Data.x      = parseInt(valores[0]);
+        this.esp32Data.y      = parseInt(valores[1]);
+        this.esp32Data.joyBtn = parseInt(valores[2]); 
+        this.esp32Data.botonA = parseInt(valores[3]); 
+
+        console.log(`X: ${this.esp32Data.x} | Y: ${this.esp32Data.y} | JoyBtn: ${this.esp32Data.joyBtn} | Botón A: ${this.esp32Data.botonA}`);
       }
-    }, 100); // Se ejecuta 10 veces por segundo
+    } catch (e) {
+      this.resetearValoresPorDefecto();
+    }
+  }
+
+  resetearValoresPorDefecto() {
+    this.esp32Data.x = 75;
+    this.esp32Data.y = 1885;
+    this.esp32Data.joyBtn = 0;
+    this.esp32Data.botonA = 0;
   }
 
   update() {
-    // 1. Lógica de Teclado
-    const tecladoIzquierda = this.cursors.left.isDown || this.keys.A.isDown;
-    const tecladoDerecha = this.cursors.right.isDown || this.keys.D.isDown;
-    const tecladoArriba = this.cursors.up.isDown || this.keys.W.isDown;
-    const tecladoAbajo = this.cursors.down.isDown || this.keys.S.isDown;
+  const tecladoIzquierda = this.cursors.left.isDown  || this.keys.A.isDown;
+  const tecladoDerecha   = this.cursors.right.isDown || this.keys.D.isDown;
+  const tecladoArriba    = this.cursors.up.isDown    || this.keys.W.isDown;
+  const tecladoAbajo     = this.cursors.down.isDown  || this.keys.S.isDown;
 
-    // 2. Lógica de Joystick Físico
-    // El ESP32 da de 0 a 4095. El centro es ~2048.
-    const joystickIzquierda = this.esp32Data.x < 1000;
-    const joystickDerecha = this.esp32Data.x > 3000;
-    const joystickArriba = this.esp32Data.y < 1000;
-    const joystickAbajo = this.esp32Data.y > 3000;
+  const joystickDerecha   = this.esp32Data.x >300 && this.esp32Data.botonA === 1;
+  const joystickIzquierda = this.esp32Data.x < 1 && this.esp32Data.botonA === 1;
 
-    // 3. Combinamos ambos: si cualquiera se activa, el personaje se mueve
-    this.left = tecladoIzquierda || joystickIzquierda;
-    this.right = tecladoDerecha || joystickDerecha;
-    this.up = tecladoArriba || joystickArriba;
-    this.down = tecladoAbajo || joystickAbajo;
+  const joystickArriba = this.esp32Data.y < 500 && this.esp32Data.botonA === 1;
+  const joystickAbajo  = this.esp32Data.y > 3000 && this.esp32Data.botonA === 1;
+
+  this.left  = tecladoIzquierda || joystickIzquierda;
+  this.right = tecladoDerecha   || joystickDerecha;
+  this.up    = tecladoArriba    || joystickArriba;
+  this.down  = tecladoAbajo     || joystickAbajo;
+}
+}
+
+class LineBreakTransformer {
+  constructor() {
+    this.chunks = "";
+  }
+  transform(chunk, controller) {
+    this.chunks += chunk;
+    const lines = this.chunks.split(/\r?\n/);
+    this.chunks = lines.pop();
+    lines.forEach((line) => controller.enqueue(line));
+  }
+  flush(controller) {
+    controller.enqueue(this.chunks);
   }
 }

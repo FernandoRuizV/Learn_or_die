@@ -3,6 +3,8 @@ export class QuestionManager {
     this.scene = scene;
     this.preguntas = [];
     this.indiceActual = 0;
+    this.botonA = null;
+    this.botonB = null;
   }
 
   cargarPreguntas(jsonKey) {
@@ -28,19 +30,18 @@ export class QuestionManager {
   const options = [preguntaData["Inciso A"], preguntaData["Inciso B"]];
   const correctIndex = preguntaData["Index correcto"] - 1;
 
-  this._mostrarPregunta(questionText, options, correctIndex, (isCorrect) => {
+  this._mostrarPregunta(jsonKey, questionText, options, correctIndex, (isCorrect) => {
     if (onComplete) onComplete(isCorrect); 
-    
+  
     if (this.scene.combateActivo) {
       this.ask(jsonKey, onComplete);
     }
-
   });
 }
 
-  _mostrarPregunta(questionText, options, correctIndex, onComplete) {
-    const camWidth = this.scene.cameras.main.width;
-    const camHeight = this.scene.cameras.main.height;
+  _mostrarPregunta(jsonKey, questionText, options, correctIndex, onComplete) {
+  const camWidth = this.scene.cameras.main.width;
+  const camHeight = this.scene.cameras.main.height;
 
     const width = camWidth * 0.3;
     const x = camWidth - width - 120;
@@ -73,7 +74,6 @@ export class QuestionManager {
     const gap = width * 0.04; 
     const totalBtns = btnAncho * 2 + gap; 
     const startX = x + (width - totalBtns) / 2; 
-
     const btnY = y + 80; 
 
     const btnPositions = [
@@ -110,20 +110,28 @@ export class QuestionManager {
       const zone = this.scene.add.zone(btnX + btnAncho / 2, btnY + btnAlto / 2, btnAncho, btnAlto);
       zone.setScrollFactor(0).setDepth(104).setInteractive();
       elementos.push(zone);
+      if (i === 0) this.botonA = zone;
+      if (i === 1) this.botonB = zone;
 
       zone.on('pointerover', () => {
-       drawBtn(0x4a2e00, 0xeeb710); 
-       btnTxt.setStyle({ fill: '#eeb710' });
+        drawBtn(0x4a2e00, 0xeeb710); 
+        btnTxt.setStyle({ fill: '#eeb710' });
       });
+      
       zone.on('pointerout', () => {
-       drawBtn(0x000000, 0xffffff); // negro, borde blanco
-       btnTxt.setStyle({ fill: '#ffffff' }); // letras blancas
+        drawBtn(0x000000, 0xffffff); // negro, borde blanco
+        btnTxt.setStyle({ fill: '#ffffff' }); // letras blancas
       });
+      
       zone.on('pointerdown', () => {
-       if (this.scene.movimientoBloqueado) return;
-       const isCorrect = (i === correctIndex);
-       elementos.forEach(el => el.destroy());
-       if (onComplete) onComplete(isCorrect);
+        if (this.scene.movimientoBloqueado) return;
+        const isCorrect = (i === correctIndex);
+        this.botonA = null;
+        this.botonB = null;
+
+        elementos.forEach(el => el.destroy());
+        if (onComplete) onComplete(isCorrect);
+        
       });
     });
   }

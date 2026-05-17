@@ -44,6 +44,22 @@ create() {
     this.boton_nivel(this.nivel4);
     this.boton_nivel(this.nivel_especial);
 
+    this.iniciarNavegacionJoystick([
+      this.menu,
+      this.nivel1,
+      this.nivel2,
+      this.nivel3,
+      this.nivel4,
+      this.nivel_especial,
+      this.sonido_icono,
+      this.boton_menos,
+      this.boton_mas,
+      this.musica_icono,
+      this.boton_home,
+      this.boton_niveles,
+      this.boton_pausa
+   ]);
+
 }
 
   boton_nivel(boton){
